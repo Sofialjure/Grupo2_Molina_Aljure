@@ -33,5 +33,5 @@ Aquí se documenta el proceso, la estructura y los resultados de cada proyecto d
 
 ## 👤 Autor
 > 📌 **Jhon Sebastián Molina Fierro**
-  📌 **Maria Sofia Aljure Herrera**
+> 📌 **Maria Sofia Aljure Herrera**
 
