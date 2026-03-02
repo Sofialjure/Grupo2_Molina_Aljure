@@ -15,9 +15,15 @@ DOG_API_BASE_URL = os.getenv("DOG_API_BASE_URL", "https://dogapi.dog/api/v2")
 # ======================
 # Logging
 # ======================
+os.makedirs("logs", exist_ok=True)
+
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler("logs/etl.log"),
+        logging.StreamHandler()
+    ]
 )
 logger = logging.getLogger(__name__)
 
@@ -136,16 +142,11 @@ if __name__ == "__main__":
 
     os.makedirs("data", exist_ok=True)
 
-    # CSV normalizado
     df.to_csv("data/dogs_normalized.csv", index=False)
+    logger.info("📁 Datos guardados en data/dogs_normalized.csv")
 
-    # JSON normalizado
-    df.to_json(
-        "data/dogs_normalized.json",
-        orient="records",
-        indent=2,
-        force_ascii=False
-    )
+    df.to_json("data/dogs_normalized.json", orient="records", indent=2, force_ascii=False)
+    logger.info("📁 Datos guardados en data/dogs_normalized.json")
 
     logger.info("✅ Dataset normalizado generado correctamente")
     print(df.head())
