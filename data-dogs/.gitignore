@@ -20,3 +20,9 @@ logs/
 .vscode/
 .idea/
 *.swp
+
+# Archivos de configuración de Streamlit
+.streamlit/secrets.toml
+.env
+venv/
+__pycache__/

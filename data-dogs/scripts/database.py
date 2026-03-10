@@ -5,23 +5,58 @@ from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, declarative_base
 
+# Cargar variables locales (.env)
 load_dotenv()
+
 logger = logging.getLogger(__name__)
 
-DB_HOST = os.getenv("DB_HOST", "localhost")
-DB_PORT = os.getenv("DB_PORT", "5432")
-DB_USER = os.getenv("DB_USER", "postgres")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_NAME = os.getenv("DB_NAME", "data_dogs")
+# Intentar importar streamlit (solo existe en deploy)
+try:
+    import streamlit as st
+except Exception:
+    st = None
+
+
+def get_config(key, default=None):
+    """
+    Busca primero en st.secrets (Streamlit Cloud),
+    si no existe usa variables del sistema (.env).
+    """
+    if st is not None:
+        try:
+            return st.secrets[key]
+        except Exception:
+            pass
+
+    return os.getenv(key, default)
+
+
+DB_HOST = get_config("DB_HOST", "localhost")
+DB_PORT = get_config("DB_PORT", "5432")
+DB_USER = get_config("DB_USER", "postgres")
+DB_PASSWORD = get_config("DB_PASSWORD")
+DB_NAME = get_config("DB_NAME", "data_dogs")
 
 if not DB_PASSWORD:
-    raise ValueError("DB_PASSWORD no está definido en el .env")
+    raise ValueError("DB_PASSWORD no está definido ni en secrets ni en .env")
 
 DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
-engine = create_engine(DATABASE_URL, echo=False, future=True)
+engine = create_engine(
+    DATABASE_URL,
+    echo=False,
+    future=True
+)
+
 Base = declarative_base()
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, future=True)
+
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine,
+    future=True
+)
+
 
 def get_db():
     db = SessionLocal()
@@ -29,6 +64,7 @@ def get_db():
         yield db
     finally:
         db.close()
+
 
 def test_connection() -> bool:
     try:
