@@ -28,16 +28,13 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # ======================
-# Extractor
+# Extractor (CSV/JSON)
 # ======================
 class DogAPIExtractor:
 
     def __init__(self):
         self.base_url = DOG_API_BASE_URL
 
-    # ----------------------
-    # Categoría por peso
-    # ----------------------
     def categoria_peso(self, peso):
         if peso is None:
             return None
@@ -52,9 +49,6 @@ class DogAPIExtractor:
         else:
             return "Gigante"
 
-    # ----------------------
-    # Extracción completa
-    # ----------------------
     def extraer_todas_las_razas(self):
         datos = []
         page = 1
@@ -80,15 +74,12 @@ class DogAPIExtractor:
         logger.info(f"📦 Total razas reales obtenidas: {len(datos)}")
         return datos
 
-    # ----------------------
-    # Normalización
-    # ----------------------
     def procesar_raza(self, breed):
-        attr = breed.get("attributes", {})
+        attr = breed.get("attributes", {}) or {}
 
-        male = attr.get("male_weight", {})
-        female = attr.get("female_weight", {})
-        life = attr.get("life", {})
+        male = attr.get("male_weight", {}) or {}
+        female = attr.get("female_weight", {}) or {}
+        life = attr.get("life", {}) or {}
 
         peso_m = male.get("max")
         peso_f = female.get("max")
@@ -113,12 +104,9 @@ class DogAPIExtractor:
             "categoria_peso": self.categoria_peso(peso_prom),
             "diferencia_sexual_peso": peso_m - peso_f,
             "hipoalergenico": attr.get("hypoallergenic"),
-            "fecha_extraccion": datetime.now().isoformat()
+            "fecha_extraccion": datetime.utcnow().isoformat()
         }
 
-    # ----------------------
-    # Pipeline
-    # ----------------------
     def ejecutar(self):
         razas = self.extraer_todas_las_razas()
 
@@ -131,9 +119,7 @@ class DogAPIExtractor:
         logger.info(f"🧹 Razas válidas tras limpieza: {len(procesadas)}")
         return procesadas
 
-# ======================
-# Main
-# ======================
+
 if __name__ == "__main__":
     extractor = DogAPIExtractor()
     datos = extractor.ejecutar()
