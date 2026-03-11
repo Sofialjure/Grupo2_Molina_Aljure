@@ -31,7 +31,7 @@ def get_config(key, default=None):
     return os.getenv(key, default)
 
 
-DB_HOST = get_config("DB_HOST", "127.0.0.1")
+DB_HOST = get_config("DB_HOST", "localhost")
 DB_PORT = get_config("DB_PORT", "5432")
 DB_USER = get_config("DB_USER", "postgres")
 DB_PASSWORD = get_config("DB_PASSWORD")
